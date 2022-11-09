@@ -56,7 +56,7 @@ int main()
 			int k = i % 7;
 			if (rest[k][j] == 1)
 			{
-				workTime[i][j] = shiftNum;
+				workTime[i][j] = 0;
 			}		
 		}
 	}
