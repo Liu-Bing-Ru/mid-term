@@ -1,0 +1,181 @@
+#include <iostream>
+using namespace std;
+struct Type_shift{
+    int isnight = 0;
+    int isnormal = 0;
+};
+int main()
+{
+    int nI, nJ, nK, L, w1, w2, R, findtype, nightN = 0, normalN = 0,GG= 0;
+    int arr[30][24];
+    int remnormal[30]= {0};
+    int remnight[30]= {0};
+    cin >> nI >> nJ >> nK >> L >> w1 >> w2 >> R;
+    //nk 介於 5~30列
+    //行數永遠固定24
+    for (int i = 1; i <= nK; i++) {
+        for(int j = 0; j < 24; j++) {
+            cin >> arr[i][j];
+        }
+    }
+    for (int j = 0; j < 24; j++) {
+        cin >> arr[0][j];
+    }
+    //檢查用
+    /*for (int i = 0; i <= nK; i++) {
+        for (int j = 0; j < 24; j++) {
+            cout<< arr[i][j] << ",";
+        }
+        cout << "\n";
+    }*/
+    Type_shift array[30];
+    for (int i = 1; i <= nK; i++) {
+        for (int j = 0; j < 24; j++) {
+            if (j >= 18 and arr[i][j] == 1) {
+                array[i].isnight = 1;
+            }
+        }
+    }
+    for (int i = 1; i <= nK; i++) {
+        if (array[i].isnight != 1) {
+            array[i].isnormal = 1;
+            normalN++;
+            remnormal[i] = i;
+        }
+    }
+    nightN = nK - normalN;
+    /*for (int i = 1; i <= nK; i++) {
+        cout << "是夜班嗎" << i << " : " << array[i].isnight<< "\n";
+    }
+    //檢查用
+    for (int i = 1; i <= nK; i++) {
+        cout << "是日班嗎" << i << " : " << array[i].isnormal << "\n";
+    }*/
+    int k = 1;
+    for (int i = 1; i <= nK; i++) {
+        if (array[i].isnight == 1) {
+            remnight[k] = i;
+            k++;
+            //cout << k << "\n";
+        }
+    }
+
+
+
+    //===============================下面找出兩個班表相加   1.最多1    2.第一個條件相等時，2要最多
+    int sum[24]= {0};
+    int sum1[24] = { 0 };
+    /*for (int i = 1; i <= nK; i++) {
+        for (int j = 1; j <= nK; j++) {
+            if (i == j or i > j) {
+                continue;
+            }
+            else {
+                for (int k = 0; k < 24; k++) {
+                    sum[k] += (arr[i][k] + arr[j][k]);
+                }
+
+            }
+        }
+    }*/
+    //以下檢查 陣列是否是下標
+    // 下面此行是數量
+    //cout << normalN << nightN;
+    /*for (int i = 1; i <= normalN; i++) {
+        cout << remnormal[i] << "\n";         [1, 2, 3, 4]
+    }
+    for (int i = 1; i <= nightN; i++) {
+        cout << remnight[i] << ",";
+    }*/
+    int countOne = 0, countTwo = 0,countZero = 0;
+    int bigOne = -1, bigTwo = -1, smallZero = 99;
+    int remI = 0, remJ = 0;
+    for (int i = 1; i <= normalN; i++) {
+        for (int j = 1; j <= nightN; j++) {
+            for (int m = 0; m < 24; m++) {
+                sum[m] = (arr[remnormal[i]][m] + arr[remnight[j]][m]);
+            }//\跑完加總
+            countOne = 0;
+            countTwo = 0;
+            countZero = 0;
+            for (int m = 0; m < 24; m++) {
+                if (sum[m] == 1) {
+                    countOne++;
+                }
+                else if (sum[m] == 2) {
+                    countTwo++;
+                }
+                else if (sum[m] == 0) {
+                    countZero++;
+                }
+            }
+            cout << countZero <<"," << countTwo;
+            //判斷要哪兩個班表相加   i 是 日班  j 是 夜班
+            if (countZero < smallZero ) {
+                remI = remnormal[i];
+                remJ = remnight[j];
+                smallZero = countZero;
+                bigTwo = countTwo;
+            }
+            else if (countZero == smallZero and countTwo > bigTwo) {
+                remI = remnormal[i];
+                remJ = remnight[j];
+                bigOne = countOne;
+                bigTwo = countTwo;
+            }
+            cout << "這是第" << remnormal[i] << "加上第" << remnight[j]<<"\n";
+            for (int m = 0; m < 24; m++) {
+                if (m == 23) {
+                    cout << sum[m] <<"\n";
+                }
+                else {
+                    cout << sum[m] << ",";
+                }
+            }
+        }
+    }
+    //cout << GG;    28種
+
+    cout << remI << "," << remJ;
+
+
+
+
+
+
+}
+/*
+40 31 11 8 3 4 20
+早上9點  到晚上9點                 最後6個是夜班 所以是 18-23        是夜班嗎      4  : 7
+1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0         1           不是
+1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0         2           不是
+1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0         3           不是
+0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0         4           不是
+0 0 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0 0 0         5           是
+0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 0 0         6           是
+0 0 0 0 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0         7           是
+0 0 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0         8           是
+0 0 0 0 0 0 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1         9           是
+0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1         10          是
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1         11          是
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0         0
+
+
+
+*/
+/*
+40 31 11 8 3 4 20
+1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+0 0 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0 0 0
+0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 0 0
+0 0 0 0 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0
+0 0 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0
+0 0 0 0 0 0 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+*/
