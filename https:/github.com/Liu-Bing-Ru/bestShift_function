@@ -1,0 +1,78 @@
+int bestShift(){
+    
+}
+
+int bestShift(int workers, int days, int shiftNum, int holidays, int w1, int w2, int requestNum, int shift[][24])
+{
+  Type_shift array[30];
+    for (int i = 1; i <= shiftNum; i++) {
+        for (int j = 0; j < 24; j++) {
+            if (j >= 18 and shift[i][j] == 1) {
+                array[i].isnight = 1;
+            }
+        }
+    }
+    for (int i = 1; i <= shiftNum; i++) {
+        if (array[i].isnight != 1) {
+            array[i].isnormal = 1;
+            normalN++;
+            remnormal[i] = i;
+        
+    }
+    nightN = shiftNum - normalN;
+
+    int k = 1;
+    for (int i = 1; i <= shiftNum; i++) {
+        if (array[i].isnight == 1) {
+            remnight[k] = i;
+            k++;
+        }
+    }
+
+    //===============================下面找出兩個班表相加   
+    int sum[24]= {0};
+    int sum1[24] = {0};
+
+    int countOne = 0, countTwo = 0,countZero = 0;
+    int bigOne = -1, bigTwo = -1, smallZero = 99;
+    int remI = 0, remJ = 0;
+    for (int i = 1; i <= normalN; i++) {
+        for (int j = 1; j <= nightN; j++) {
+            for (int m = 0; m < 24; m++) {
+                sum[m] = (arr[remnormal[i]][m] + arr[remnight[j]][m]);
+            }
+            countOne = 0;
+            countTwo = 0;
+            countZero = 0;
+            for (int m = 0; m < 24; m++) {
+                if (sum[m] == 1) {
+                    countOne++;
+                }
+                else if (sum[m] == 2) {
+                    countTwo++;
+                }
+                else if (sum[m] == 0) {
+                    countZero++;
+                }
+            }
+            cout << countZero <<"," << countTwo;
+            if (countZero < smallZero ) {
+                remI = remnormal[i];
+                remJ = remnight[j];
+                smallZero = countZero;
+                bigTwo = countTwo;
+            }
+            else if (countZero == smallZero and countTwo > bigTwo) {
+                remI = remnormal[i];
+                remJ = remnight[j];
+                bigOne = countOne;
+                bigTwo = countTwo;
+            }
+
+
+    cout << remI << "," << remJ;
+
+
+
+
+  }
