@@ -1,0 +1,15 @@
+int  workingMember[31][24] = {0};  
+	for(int i = 0; i < days; i++){
+	    for (int j = 0; j < workers; j++){
+          for(int q = 0; q < 24; q++){
+              if (worktime[i][j] != 0 && worktime[i][j] != -1){
+                  workingMember[i][q] = workingMember[i][q] + 1; 
+              }
+        }
+	}
+
+  for(int i = 0; i < days; i++){
+      for(int j = 0; j< 24; j++){
+          cout << workingMember[i][j]<<" ";
+      }
+      cout << endl;
