@@ -1,0 +1,348 @@
+#include <cmath>
+#include <iostream>
+using namespace std;
+
+struct Type_shift {
+  int isnight = 0;
+  int isnormal = 0;
+};
+// nI nJ  nK L W1 W2 R
+int bestShift(int workers, int days, int shiftNum, int holidays,
+              int requestNum, int shift[][24]);
+int main() {
+  int workers, days, shiftNum, holidays /*L*/, w1, w2, requestNum;
+  cin >> workers >> days >> shiftNum >> holidays >>
+      w1 /*not fulfill holiday weight*/ >> w2 /*exceed night class weight*/ >>
+      requestNum;
+  int shift[31][24], needs[days][24], needs1[days][24],
+      holidayRequest[2][requestNum];
+  int worktime[100][31] = {0};
+  int workingMember[31][24] = {0}; //記錄這個時段有多少人在工作
+  //班表
+  for (int i = 0; i < workers; i++) {
+    for (int j = 0; j < days; j++) {
+      worktime[i][j] = -1;
+    }
+  }
+
+  for (int i = 1; i <= shiftNum; i++) {
+    for (int j = 0; j < 24; j++) {
+      cin >> shift[i][j]; //各種班型的上班狀況
+    }
+  }
+  for (int j = 0; j < 24; j++) {
+    cin >> shift[0][j];
+  }
+  for (int i = 0; i < days; i++) {
+    for (int j = 0; j < 24; j++) {
+      cin >> needs[i][j]; //一個月中每天各時段所需員工數量
+    }
+  }
+  for (int i = 0; i < 2; i++) {
+    for (int j = 0; j < requestNum; j++) {
+      cin >> holidayRequest[i][j]; //休假需求
+    }
+  }
+//////////////////////////////    CIN DONE ///////////////////////////////////////////////////
+  for (int i = 0; i < days; i++) {
+    for (int j = 0; j < 24; j++) {
+      needs1[i][j] = needs[i][j];
+    }
+  }
+  int avneed[31] = {0}; //每天平均需求員工數
+
+  for (int i = 0; i < days; i++) {
+
+    int dailysumworker = 0;
+    for (int j = 0; j < 24; j++) {
+      dailysumworker = dailysumworker + needs[i][j];
+    }
+    avneed[i] = (dailysumworker / 24);
+  }
+  //以下用來踢出outlier
+  int Var[31] = {0};
+  for (int i = 0; i < days; i++) {
+    int Varsum = 0; //算變異數時用到的總和
+    for (int j = 0; j < 24; j++) {
+      Varsum = Varsum + (needs[i][j] - avneed[i]) * (needs[i][j] - avneed[i]);
+    }
+    Var[i] = sqrt(Varsum / 24);
+    // avneed[i] = (dailysumworker / 24);
+  }
+  for (int i = 0; i < days; i++) {
+    for (int j = 0; j < 24; j++) {
+      if ((needs1[i][j] > (avneed[i] + 1.5 * Var[i])) ||
+          (needs1[i][j] < (avneed[i] - 1.5 * Var[i]))) {
+        needs1[i][j] = -2;
+      }
+    }
+  }
+
+  int avneed1[31] = {0};
+  for (int i = 0; i < days; i++) {
+    for (int j = 0; j < 24; j++) {
+      int dailysumworker1 = 0;
+      int sum = 0;
+      for (int j = 0; j < 24; j++) {
+        if (needs1[i][j != -2]) {
+          dailysumworker1 = dailysumworker1 + needs1[i][j];
+          sum = sum + 1;
+          // cout << sum;
+        }
+      }
+      avneed1[i] = (dailysumworker1 / sum);
+     
+    }
+  } 
+
+  
+  int rest[7][31] = {0};
+  int haveworked[100] = {0}; //紀錄員工已工作的天數(應小於等於days-holidays)
+  for (int i = 0; i < 7; i++)
+    for (int j = 0; j < days; j++)
+      rest[i][j] = 0;
+
+  for (int i = 0; i < 7; i++) {
+    if (i != 6) {
+      for (int j = i; j < days; j = j + 7)
+        rest[i][j] = 1;
+    }
+
+    if (i == 6) {
+      for (int k = 0; k < days; k = k + 7)
+        rest[i][k + 6] = 1;
+    }
+  }
+
+  for (int i = 0; i < workers; i++) {
+    for (int j = 0; j < days; j++) {
+      int k = i % 7;
+      if (rest[k][j] == 1) {
+        worktime[i][j] = 0;
+      }
+    }
+  }
+
+  for (int i = 0; i < requestNum; i++) {
+    if (worktime[holidayRequest[0][i] - 1][holidayRequest[1][i] - 1] != 0) {
+      worktime[holidayRequest[0][i] - 1][holidayRequest[1][i] - 1] = 0;
+    }
+  }
+
+  int shiftty = 0, dayshift = 0, nightshift = 0;
+    shiftty =
+        bestShift(workers, days, shiftNum, holidays, requestNum, shift);//回傳2005;
+    dayshift = shiftty / 1000;
+    nightshift = shiftty - (dayshift * 1000);
+    int wholedayshift[24] = {0};
+    for(int p = 0; p < 24; p++){
+        wholedayshift[p] = shift[nightshift][p] + shift[dayshift][p];
+    }
+  
+  for (int i = 0; i < days; i++) { //每一天
+    
+    int demand = avneed1[i];
+    int demand1 = demand;
+    int worktimecount = 0;
+    int dayworking = 0, nightworking = 0;
+    for (int j = 0; j < workers; j++) { //每一個員工
+      if (demand > 0) {
+       /* if (haveworked[j] == (days - holidays)) {
+          worktime[j][i] = 0;
+        }*/
+
+        if (worktime[j][i] == -1) { //==-1 表示當日尚未上班
+          worktimecount = worktimecount + 1;
+          if (worktimecount % 2 == 0) {//用來分配日夜班
+            worktime[j][i] = dayshift;
+            dayworking = dayworking + 1;
+          } 
+          else if (worktimecount % 2 == 1) {//用來分配日夜班
+            worktime[j][i] = nightshift;
+            nightworking = nightworking + 1;
+          }
+          haveworked[j]++;
+          demand--;
+        }
+      }
+    }
+
+    for(int q = 0; q < 24; q++){
+        workingMember[i][q] = wholedayshift[q] * demand1;
+    }
+    
+  }
+  for(int i = 0; i < days; i++){
+      for(int j = 0; j< 24; j++){
+          if(needs[i][j] - workingMember[i][j] > 0){
+              
+          }
+      }
+  }
+  /*for(int i = 0; i < days; i++){
+      for(int j = 0; j< 24; j++){
+          cout << workingMember[i][j]<<" ";
+      }
+      cout << endl;
+  }*/
+  
+/////////////////////////////////////////  COUT   ///////////////////////////////////////////////////
+ /* for (int i = 0; i < workers; i++){
+    for (int j = 0; j < days; j++) {
+      if (j == days - 1) {
+          if(worktime[i][j] == -1){
+              cout << "0" << '\n';
+          }else{
+              cout << worktime[i][j] << '\n';
+          }
+        
+      }
+      else {
+          if(worktime[i][j] == -1){
+              cout << "0" << ",";
+          }else{
+              cout << worktime[i][j] << ",";
+          }
+        
+      }
+    }
+  }*/
+
+  return 0;
+}
+///////////////////////////////   function   ////////////////////////////////////////////
+int bestShift(int workers, int days, int shiftNum, int holidays,
+              int requestNum, int shift[][24]) {
+    int nightN = 0, normalN = 0,GG= 0;
+    //int shift[30][24];
+    int remnormal[30]= {0};
+    int remnight[30]= {0};
+   
+    Type_shift array[30];
+    for (int i = 1; i <= shiftNum; i++) {
+        for (int j = 0; j < 24; j++) {
+            if (j >= 18 and shift[i][j] == 1) {
+                array[i].isnight = 1;
+            }
+        }
+    }
+    for (int i = 1; i <= shiftNum; i++) {
+        if (array[i].isnight != 1) {
+            array[i].isnormal = 1;
+            normalN++;
+            remnormal[i] = i;
+        }
+    }
+    nightN = shiftNum - normalN;
+   
+    int k = 1;
+    for (int i = 1; i <= shiftNum; i++) {
+        if (array[i].isnight == 1) {
+            remnight[k] = i;
+            k++;
+            
+        }
+    }
+
+
+
+    //===============================下面找出兩個班表相加   1.最多1    2.第一個條件相等時，2要最多
+    int sum[24]= {0};
+    int sum1[24] = { 0 };
+    
+    int countOne = 0, countTwo = 0,countZero = 0;
+    int bigOne = -1, bigTwo = -1, smallZero = 99;
+    int remI = 0, remJ = 0;
+    for (int i = 1; i <= normalN; i++) {
+        for (int j = 1; j <= nightN; j++) {
+            for (int m = 0; m < 24; m++) {
+                sum[m] = (shift[remnormal[i]][m] + shift[remnight[j]][m]);
+            }//\跑完加總
+            countOne = 0;
+            countTwo = 0;
+            countZero = 0;
+            for (int m = 0; m < 24; m++) {
+                if (sum[m] == 1) {
+                    countOne++;
+                }
+                else if (sum[m] == 2) {
+                    countTwo++;
+                }
+                else if (sum[m] == 0) {
+                    countZero++;
+                }
+            }
+         //   cout << countZero <<"," << countTwo;
+            //判斷要哪兩個班表相加   i 是 日班  j 是 夜班
+            if (countZero < smallZero ) {
+                remI = remnormal[i];
+                remJ = remnight[j];
+                smallZero = countZero;
+                bigTwo = countTwo;
+            }
+            else if (countZero == smallZero and countTwo > bigTwo) {
+                remI = remnormal[i];
+                remJ = remnight[j];
+                bigOne = countOne;
+                bigTwo = countTwo;
+            }
+           
+        }
+    }
+   
+    int answer = 0;
+    answer = (remI * 1000) + remJ;
+    return answer;
+}
+
+
+/*
+
+40 31 11 8 3 4 20
+1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+0 0 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0 0 0
+0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0 0 0
+0 0 0 0 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0
+0 0 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 0 0
+0 0 0 0 0 0 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+29 24 25 24 24 24 17 13 17 23 21 23 21 18 20 20 16 11 10 8 8 8 9 8
+20 20 21 22 19 18 12 14 14 18 20 20 18 20 17 17 11 11 8 8 9 8 8 7
+21 18 20 20 22 19 13 11 14 17 20 21 18 18 17 15 15 13 8 6 6 8 7 6
+29 24 25 24 24 24 17 13 17 23 21 23 21 18 20 20 16 11 10 8 8 8 9 8
+20 20 21 22 19 18 12 14 14 18 20 20 18 20 17 17 11 11 8 8 9 8 8 7
+21 18 20 20 22 19 13 11 14 17 20 21 18 18 17 15 15 13 8 6 6 8 7 6
+17 18 17 18 20 17 12 12 11 15 18 17 16 17 14 15 13 11 9 7 8 7 7 6
+29 24 25 24 24 24 17 13 17 23 21 23 21 18 20 20 16 11 10 8 8 8 9 8
+20 20 21 22 19 18 12 14 14 18 20 20 18 20 17 17 11 11 8 8 9 8 8 7
+21 18 20 20 22 19 13 11 14 17 20 21 18 18 17 15 15 13 8 6 6 8 7 6
+17 18 17 18 20 17 12 12 11 15 18 17 16 17 14 15 13 11 9 7 8 7 7 6
+18 15 20 18 16 20 12 11 13 17 17 18 16 18 17 13 14 10 6 6 6 5 6 6
+17 18 17 18 20 17 12 12 11 15 18 17 16 17 14 15 13 11 9 7 8 7 7 6
+18 15 20 18 16 20 12 11 13 17 17 18 16 18 17 13 14 10 6 6 6 5 6 6
+29 24 25 24 24 24 17 13 17 23 21 23 21 18 20 20 16 11 10 8 8 8 9 8
+20 20 21 22 19 18 12 14 14 18 20 20 18 20 17 17 11 11 8 8 9 8 8 7
+21 18 20 20 22 19 13 11 14 17 20 21 18 18 17 15 15 13 8 6 6 8 7 6
+17 18 17 18 20 17 12 12 11 15 18 17 16 17 14 15 13 11 9 7 8 7 7 6
+18 15 20 18 16 20 12 11 13 17 17 18 16 18 17 13 14 10 6 6 6 5 6 6
+29 24 25 24 24 24 17 13 17 23 21 23 21 18 20 20 16 11 10 8 8 8 9 8
+20 20 21 22 19 18 12 14 14 18 20 20 18 20 17 17 11 11 8 8 9 8 8 7
+29 24 25 24 24 24 17 13 17 23 21 23 21 18 20 20 16 11 10 8 8 8 9 8
+20 20 21 22 19 18 12 14 14 18 20 20 18 20 17 17 11 11 8 8 9 8 8 7
+21 18 20 20 22 19 13 11 14 17 20 21 18 18 17 15 15 13 8 6 6 8 7 6
+17 18 17 18 20 17 12 12 11 15 18 17 16 17 14 15 13 11 9 7 8 7 7 6
+18 15 20 18 16 20 12 11 13 17 17 18 16 18 17 13 14 10 6 6 6 5 6 6
+17 18 17 18 20 17 12 12 11 15 18 17 16 17 14 15 13 11 9 7 8 7 7 6
+18 15 20 18 16 20 12 11 13 17 17 18 16 18 17 13 14 10 6 6 6 5 6 6
+29 24 25 24 24 24 17 13 17 23 21 23 21 18 20 20 16 11 10 8 8 8 9 8
+20 20 21 22 19 18 12 14 14 18 20 20 18 20 17 17 11 11 8 8 9 8 8 7
+29 24 25 24 24 24 17 13 17 23 21 23 21 18 20 20 16 11 10 8 8 8 9 8
+3 5 7 2 9 16 39 36 24 35 40 1 8 12 37 13 31 22 21 20
+2 5 8 3 5 2 8 5 9 9 1 3 6 7 4 2 2 4 6 3
+
+*/
