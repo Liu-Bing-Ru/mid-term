@@ -1,0 +1,234 @@
+#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <time.h>
+using namespace std;
+struct Type_shift{
+    int isnight = 0;
+    int isnormal = 0;
+};
+int bestShift(int, int, int, int, int, int, int, int [][24]);
+int main()
+{
+    int workers, days, shiftNum, holidays/*L*/, w1, w2, requestNum;
+    cin >> workers >> days >> shiftNum >> holidays >> w1/*not fulfill holiday weight*/ >> w2/*exceed night class weight*/ >> requestNum;
+    int shift[shiftNum + 1][24], needs[days][24], needs1[days][24], holidayRequest[2][requestNum];
+    
+	for (int i = 1; i <= shiftNum; i++) {
+        for(int j = 0; j < 24; j++) {
+            cin >> shift[i][j];
+        }
+    }
+    for (int j = 0; j < 24; j++) {
+        cin >> shift[0][j];
+    }
+    
+    for(int i = 0; i < days; i++){
+        for(int j = 0; j < 24; j++){
+            cin >> needs[i][j]; //一個月中每天各時段所需員工數量
+            
+        }
+    }
+    for(int i = 0; i < 2; i++){
+        for(int j = 0; j < requestNum; j++){
+            cin >> holidayRequest[i][j];//休假需求
+        }
+    }
+    
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    int rest[7][31] = {0};
+    int haveworked[100] = {0}; //紀錄員工已工作的天數(應小於等於days-holidays)
+    int worktime[100][31] = {0};
+	
+	for (int i = 0; i < workers; i ++)
+		for (int j = 0; j < days; j ++)
+			worktime[i][j] = -1;
+			
+	//每個員工在每一天的班型 //output answer
+    for (int i = 0; i < 7; i ++)
+		for (int j = 0; j < days; j ++)
+			rest[i][j] = 0;
+
+
+	for (int i = 0; i < 7; i ++)
+	{
+		if (i != 6)
+		{
+			for (int j = i; j < days; j = j + 7)
+				rest[i][j] = 1;		
+		}
+		
+		if (i == 6)
+		{
+			for (int k = 0; k < days; k = k + 7)
+				rest[i][k + 6] = 1;	
+		}
+	}
+	
+	
+	for (int i = 0; i < workers; i ++)
+	{
+		for (int j = 0; j < days; j ++)
+		{
+			int k = i % 7;
+			if (rest[k][j] == 1)
+			{
+				worktime[i][j] = 0;
+			}		
+		}
+	}
+	
+	for (int i = 0; i < requestNum; i ++) {
+		if (worktime[holidayRequest[0][i] - 1][holidayRequest[1][i] - 1] != 0) {
+			worktime[holidayRequest[0][i] - 1][holidayRequest[1][i] - 1] = 0;
+		}
+	}
+	//////////////////////////////////////////////////////////////////////////
+	int shiftty = 0, dayshift = 0, nightshift = 0;
+        shiftty = bestShift(workers, days, shiftNum, holidays, w1, w2, requestNum, shift);
+        dayshift = shiftty / 1000;
+        nightshift = shiftty - (dayshift * 1000);
+      
+        int worktimecount = 0;
+    
+	for (int i = 0; i < workers; i ++)
+	{
+		for (int j = i % 7; j < days; j = j + 7) {
+			worktime[i][j + 1] = nightshift;
+		
+		}
+	}
+	
+	for (int i = 0; i < workers; i ++)
+	{
+		for (int j = 0; j < days; j++) {
+			if (worktime[i][j] != 0 && worktime[i][j] != nightshift)
+			worktime[i][j] = dayshift;
+		}
+	}
+
+    ///////////////////////////////////////////////////////////////////////////////
+    int countRest[100] = {0};
+	for (int i = 0; i < workers; i ++)
+	{
+		for (int j = 0; j < days; j ++)
+		{
+			if (worktime[i][j] == 0)
+				{
+					countRest[i] = countRest[i] + 1;
+				}		
+		}
+			
+		
+	}
+	
+for (int i = 0; i < workers; i++) {
+		//srand(time(0));
+		while (countRest[i] < holidays) {
+			int randomNum = rand() % days;
+			if (worktime[i][randomNum] != 0) {
+				worktime[i][randomNum] = 0;
+				countRest[i]++;
+			}
+		}
+	}
+	/////////////////////////////////////////////////////////////////////
+   for (int i = 0; i < workers; i ++)
+		for (int j = 0; j < days; j ++)
+		{
+			if (j == days - 1)
+			{
+				cout << worktime[i][j] << '\n';
+			}
+			
+			else
+			{
+				cout << worktime[i][j] << ",";
+			}
+		}
+		
+    
+    return 0;
+}
+////////////////////////////////////////function//////////////////////////////////////////////////////////
+int bestShift(int workers, int days, int shiftNum, int holidays, int w1, int w2,
+              int requestNum, int shift[][24]) {
+  int nightN = 0, normalN = 0;
+  int remnormal[30] = {0};
+  int remnight[30] = {0};
+  int arr[30][24];
+  Type_shift array[30];
+  for (int i = 1; i <= shiftNum; i++) {
+    for (int j = 0; j < 24; j++) {
+      if (j >= 18 and shift[i][j] == 1) {
+        array[i].isnight = 1; // https://www.onlinegdb.com/online_c++_compiler#tab-stdin
+      }
+    }
+  }
+
+  for (int i = 1; i <= shiftNum; i++) {
+    if (array[i].isnight != 1) {
+      array[i].isnormal = 1;
+      normalN++;
+      remnormal[normalN] = i; // {0, 2, 4}
+    }
+  }
+  nightN = shiftNum - normalN;
+
+  int k = 1;
+  for (int i = 1; i <= shiftNum; i++) {
+    if (array[i].isnight == 1) {
+      remnight[k] = i; // {0, 5, 6, 7}
+      k++;
+    }
+  }
+
+  //===============================下面找出兩個班表相加
+  int sum[24] = {0};
+  int sum1[24] = {0};
+
+  int countOne = 0, countTwo = 0, countZero = 0;
+  int bigOne = -1, bigTwo = -1, smallZero = 99;
+  int remI = 0, remJ = 0;
+  for (int i = 1; i <= normalN; i++) {
+    for (int j = 1; j <= nightN; j++) {
+      for (int m = 0; m < 24; m++) {
+        sum[m] = (shift[remnormal[i]][m] + shift[remnight[j]][m]);
+      }
+      countOne = 0;
+      countTwo = 0;
+      countZero = 0;
+      for (int m = 0; m < 24; m++) {
+        if (sum[m] == 1) {
+          countOne++;
+        } else if (sum[m] == 2) {
+          countTwo++;
+        } else if (sum[m] == 0) {
+          countZero++;
+        }
+      }
+
+      if (countZero < smallZero) {
+        remI = remnormal[i];
+        remJ = remnight[j];
+        smallZero = countZero;
+        bigTwo = countTwo;
+      } else if (countZero == smallZero and countTwo > bigTwo) {
+        remI = remnormal[i];
+        remJ = remnight[j];
+        bigOne = countOne;
+        bigTwo = countTwo;
+      }
+
+ 
+            
+      
+    }
+  }
+
+  int rem = 0;
+  rem = (remI * 1000) + remJ;
+  //cout << remI << remJ;
+  return rem;
+}
