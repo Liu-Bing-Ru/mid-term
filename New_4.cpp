@@ -213,21 +213,19 @@ void fulfillRequest(int holidayRequest[][3100], int workTime[][31], int restDays
   for (int i = 0; i < requestNum; i ++) {
     if (restDays[holidayRequest[0][i] - 1] < holidays and workTime[holidayRequest[0][i] - 1][holidayRequest[1][i] - 1] != 0) {
     	workTime[holidayRequest[0][i] - 1][holidayRequest[1][i] - 1] = 0;
-      	restDays[holidayRequest[0][i] - 1]++;
+      restDays[holidayRequest[0][i] - 1]++;
     }
-    else {
-    	if (workTime[holidayRequest[0][i] - 1][holidayRequest[1][i] - 1] != 0) {
-		    int bestShiftChoice = findBestShift(holidayRequest[1][i] - 1, shiftNum, needs, shift, integers);
-		    int bestTotal = 0;
-		    for (int j = 0; j < 24; j++) {
-	        if (needs[bestShiftChoice][j] > 0)
-	 	        bestTotal += shift[bestShiftChoice][j];
-		    }
-		    if (bestTotal < w1) {
-		      	workTime[holidayRequest[0][i] - 1][holidayRequest[1][i] - 1] = 0;
-		        restDays[holidayRequest[0][i] - 1]++;
-		    }
-		}
+    else if (restDays[holidayRequest[0][i] - 1] >= holidays and workTime[holidayRequest[0][i] - 1][holidayRequest[1][i] - 1] != 0){
+		  int bestShiftChoice = findBestShift(holidayRequest[1][i] - 1, shiftNum, needs, shift, integers);
+		  int bestTotal = 0;
+		  for (int j = 0; j < 24; j++) {
+        if (needs[holidayRequest[1][i] - 1][j] > 0)
+          bestTotal += shift[bestShiftChoice][j];
+		  }
+		  if (bestTotal < w1) {
+		    workTime[holidayRequest[0][i] - 1][holidayRequest[1][i] - 1] = 0;
+		    restDays[holidayRequest[0][i] - 1]++;
+		  }
     }
   }
 }
@@ -297,26 +295,26 @@ void divideShift(int shiftNum, int shift[][24], int remnormal[], int remnight[],
     for (int j = 0; j < 24; j++) {
       if (j >= 18 and shift[i][j] == 1)
           array[i].isnight = 1;
-      }
     }
-    for (int i = 1; i <= shiftNum; i++) {
-      if (array[i].isnight != 1) {
-          array[i].isnormal = 1;
-          normalN++;
-          remnormal[normalN] = i;
-      }
+  }
+  for (int i = 1; i <= shiftNum; i++) {
+    if (array[i].isnight != 1) {
+      array[i].isnormal = 1;
+      normalN++;
+      remnormal[normalN] = i;
     }
+  }
 
-    nightN = shiftNum - normalN;
+  nightN = shiftNum - normalN;
 
-    int k = 0;
-    for (int i = 1; i <= shiftNum; i++) {
-      if (array[i].isnight == 1) {
-        k++;
-          remnight[k] = i;
-      }
+  int k = 0;
+  for (int i = 1; i <= shiftNum; i++) {
+    if (array[i].isnight == 1) {
+      k++;
+      remnight[k] = i;
     }
+  }
 
-    totalShift[0] = normalN;
-    totalShift[1] = nightN;
+  totalShift[0] = normalN;
+  totalShift[1] = nightN;
 }
