@@ -83,6 +83,7 @@ int main()
     return 0;
 }
 ////////////////////////////////////////function//////////////////////////////////////////////////////////
+//找出最佳班型
 int bestShift(int workers, int days, int shiftNum, int holidays, int w1, int w2,
               int requestNum, int shift[][24]) {
   int nightN = 0, normalN = 0;
@@ -94,6 +95,7 @@ int bestShift(int workers, int days, int shiftNum, int holidays, int w1, int w2,
   for (i = 1 ~ shiftNum - 1) {
     for (j = 0 ~ 23) {
       if (j >= 18 && shift[i][j] == 1) {
+      //判斷此班型是否是夜班
         array[i].isnight = 1; // https://www.onlinegdb.com/online_c++_compiler#tab-stdin
       }
     }
@@ -101,16 +103,20 @@ int bestShift(int workers, int days, int shiftNum, int holidays, int w1, int w2,
 
   for (i = 1 ~ shiftNum - 1) {
     if (array[i].isnight != 1) {
+    //判斷此班型是否是正常班型(不含夜班)
       array[i].isnormal = 1;
       normalN++;
+      //並且把正常班型存在陣列裡面
       remnormal[normalN] = i; // {0, 2, 4}
     }
   }
+  //計算夜班班表有幾個、正常班表有幾個
   nightN = shiftNum - normalN;
 
   int k = 1;
   for (i = 1 ~ shiftNum - 1) {
     if (array[i].isnight == 1) {
+    //把夜班班型存起來
       remnight[k] = i; // {0, 5, 6, 7}
       k++;
     }
@@ -119,7 +125,8 @@ int bestShift(int workers, int days, int shiftNum, int holidays, int w1, int w2,
   //===============================下面找出兩個班表相加
   int sum[24] = {0};
   int sum1[24] = {0};
-
+  
+//計算融合的班表有幾個 零、一、二
   int countOne = 0, countTwo = 0, countZero = 0;
   int bigOne = -1, bigTwo = -1, smallZero = 99;
   int remI = 0, remJ = 0;
@@ -127,12 +134,15 @@ int bestShift(int workers, int days, int shiftNum, int holidays, int w1, int w2,
   for (i = 1 ~ normalN - 1) {
     for (j = 1 ~ nightN - 1{
       for (m = 0 ~ 23) {
+      //把任兩個班型融合起來，存在陣列 sum裡面
         sum[m] = (shift[remnormal[i]][m] + shift[remnight[j]][m]);
       }
+       //把要記住的數值初始化
       countOne = 0;
       countTwo = 0;
       countZero = 0;
       
+      //融合班表裡面有幾個零、一、二
       for (m = 0 ~ 23) {
         if (sum[m] == 1) {
           countOne++;
@@ -142,13 +152,15 @@ int bestShift(int workers, int days, int shiftNum, int holidays, int w1, int w2,
           countZero++;
         }
       }
-
+//找出融合班型每個每個時段最少零的，也就是希望兩個班表能連續不間斷工作一整天
       if (countZero < smallZero) {
         remI = remnormal[i];
         remJ = remnight[j];
         smallZero = countZero;
         bigTwo = countTwo;
-      } else if (countZero == smallZero && countTwo > bigTwo) {
+      } 
+      //如果零的個數一樣時、找二最多的
+      else if (countZero == smallZero && countTwo > bigTwo) {
         remI = remnormal[i];
         remJ = remnight[j];
         bigOne = countOne;
