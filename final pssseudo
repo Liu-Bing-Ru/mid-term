@@ -1,0 +1,91 @@
+標頭檔
+struct Type_shift
+int bestShift()//宣告一個函示
+int main()
+{
+    int workers, days, shiftNum, holidays/*L*/, w1/*not fulfill holiday weight*/, w2/*exceed night class weight*/, requestNum;
+    int shift[shiftNum + 1][24], needs[days][24], holidayRequest[2][requestNum];
+    cin >> 上上一行的各個整數(題目輸入)>> 上一行的各個陣列(題目輸入)
+    
+	for 
+	->for
+	//初始化每個員工在每一天的班型worktime為-1，可以分辨某員工是否已被分配班型。worktime是要output的answer
+    
+    for
+	->for
+	-->rest[i][j] = 0;
+    //雙重for跑rest,rest array 用來記錄七種休假可能，rest==0是上班、==1是休假
+
+	for
+	->if
+	-->for
+	->else if
+	-->for
+	//分配七種rest給每一個員工，用員工編號輪著排
+	
+	for 
+	->for 
+    //將rest轉成worktime,雙重for迴圈跑worktime,用來排每七天固定休假一天
+	//第一個員工休息第1.8.15...天，第二個員工2.9.16...以此類推
+	
+	
+	for (i = requestNum)
+	->若worktime在某員工的特需假日需求時非休假班型將其改為休假班型
+	//滿足特殊休假需求
+	
+    //shiftty存bestshift的回傳值rem，經反運算找到日夜班的班型 (dayshift and nightshift)
+	for 
+	->for
+	-->if((j + 1) < days)
+	--->worktime[i][j + 1] = nightshift;
+	//雙層for來安排worktime，不是休假，就每七天分配一個nightshift
+	
+	for 
+	->for 
+	-->不是休假也不是夜班就分配日班
+	//雙層for跑worktime0安排dayshift
+	
+    int countRest陣列計算每位員工的休假天數
+	for
+    ->for
+	-->如果休假，countRest + 1
+    //雙層for來跑worktime array以利檢視每位員工的休假狀態
+	
+    for (i = workers) 
+    ->取一個隨機的數再days以內
+    -->while第i號員工休假小於L天
+    --->int randomNum = rand();
+    ---->不是七天例休或夜班就隨機一天班型改成0(countrest[i]要加一)
+    //滿足每月L天的休假要求
+	
+    for
+    ->for
+    -->cout
+    //雙層for跑worktime輸出班表
+    
+    return 0;
+}
+
+int bestShift(int workers, int days, int shiftNum, int holidays, int w1, int w2,
+              int requestNum, int shift[][24]) {
+    int nightN = 0, normalN = 0, remnormal[30] = {0}, remnight[30] = {0}, arr[30][24];
+    Type_shift array[30];
+  
+    for
+    ->for
+    -->判斷此班型是否是夜班->是的話isnight=1
+
+    isnight != 1 -> isnormal = 1 並將其i儲存在remnormal
+  
+    nightN = shiftNum - normalN;//計算夜班班表有幾個、正常班表有幾個
+    int k = 1;
+    找出夜班班型存在remnight
+
+    從日班及夜班各挑一個班型相加(多種組合都嘗試)
+    ->找到0最少再找2最多 的一種組合
+    -->日班班型紀錄為remI，夜班班型紀錄為remJ
+ 
+  將remI and remJ經運算合成一個整數rem回傳，主函式再反運算得remI&remJ
+
+  return rem;//回傳值
+}
