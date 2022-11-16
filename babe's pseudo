@@ -1,32 +1,23 @@
-#include <iostream>
-#include <cmath>
-#include <cstdlib>
-#include <time.h>
-using namespace std;
-struct Type_shift{
-    int isnight = 0;
-    int isnormal = 0;
-};
-int bestShift;//宣告一個函示
+標頭檔
+struct Type_shift
+int bestShift()//宣告一個函示
 int main()
 {
-    int workers, days, shiftNum, holidays/*L*/, w1/*not fulfill holiday weight*/, w2/*exceed night class weight*/, requestNum;
-    cin >> 上一行的各個整數(題目輸入)
-  
+    int workers, days, shiftNum, holidays, w1
+        w2/*exceed night class weight*/, requestNum;
     int shift[shiftNum + 1][24], needs[days][24], holidayRequest[2][requestNum];
-    cin >> 上一行的各個陣列(題目輸入)
+    cin >> 上上一行的各個整數(題目輸入)>> 上一行的各個陣列(題目輸入)
     
-    ////////////////////////////////////// cin結束 ////////////////////////////////////////////////
-   
-	for (i = workers)
-		for (j = days)
-		worktime[i][j] = -1;
-		//初始化每個員工在每一天的班型為-1，可以分辨某員工是否已被分配班型。worktime是要output的answer
+	for
+	->for
+	//初始化每個員工在每一天的班型worktime為-1，
+	//可以分辨某員工是否已被分配班型。worktime是要output的answer
     
     for
 	->for
 	-->rest[i][j] = 0;
-    //雙重for跑rest,rest array 用來記錄七種休假可能，rest==0是上班、==1是休假
+    //雙重for跑rest,rest array 用來記錄七種休假可能
+    //rest==0是上班、==1是休假
 
 	for
 	->if
@@ -34,7 +25,6 @@ int main()
 	->else if
 	-->for
 	//分配七種rest給每一個員工，用員工編號輪著排
-	
 	
 	for 
 	->for 
@@ -45,132 +35,3 @@ int main()
 	for (i = requestNum)
 	->若worktime在某員工的特需假日需求時非休假班型將其改為休假班型
 	//滿足特殊休假需求
-	
-	//////////////////////////////////////////////////////////////////////////
-	    
-    //shiftty存bestshift的回傳值rem，經反運算找到日夜班的班型 (dayshift and nightshift)
-	for 
-	->for
-	-->if((j + 1) < days)
-	--->worktime[i][j + 1] = nightshift;
-	//雙層for來安排worktime，不是休假，就每七天分配一個nightshift
-	
-	for 
-	->for 
-	-->不是休假也不是夜班就分配日班
-	//雙層for跑worktime0安排dayshift
-	
-    ///////////////////////////////////////////////////////////////////////////////
-    int countRest陣列計算每位員工的休假天數
-	for
-    ->for
-	-->如果休假，countRest + 1
-    //雙層for來跑worktime array以利檢視每位員工的休假狀態
-	
-    for (i = workers) 
-    ->取一個隨機的數再days以內
-    -->while第i號員工休假小於L天
-    --->int randomNum = rand();
-    ---->不是七天例休或夜班就隨機一天班型改成0(countrest[i]要加一)
-    //滿足每月L天的休假要求
-        
-	
-    for
-    ->for
-    -->cout
-    //雙層for跑worktime輸出班表
-    
-    return 0;
-}
-////////////////////////////////////////function//////////////////////////////////////////////////////////
-//找出最佳班型
-int bestShift(int workers, int days, int shiftNum, int holidays, int w1, int w2,
-              int requestNum, int shift[][24]) {
-  int nightN = 0, normalN = 0;
-  int remnormal[30] = {0};
-  int remnight[30] = {0};
-  int arr[30][24];
-  Type_shift array[30];
-  
-  for (i = 1 ~ shiftNum - 1) {
-    for (j = 0 ~ 23) {
-      if (j >= 18 && shift[i][j] == 1) {
-      //判斷此班型是否是夜班
-        array[i].isnight = 1; // https://www.onlinegdb.com/online_c++_compiler#tab-stdin
-      }
-    }
-  }
-
-  for (i = 1 ~ shiftNum - 1) {
-    if (array[i].isnight != 1) {
-    //判斷此班型是否是正常班型(不含夜班)
-      array[i].isnormal = 1;
-      normalN++;
-      //並且把正常班型存在陣列裡面
-      remnormal[normalN] = i; // {0, 2, 4}
-    }
-  }
-  //計算夜班班表有幾個、正常班表有幾個
-  nightN = shiftNum - normalN;
-
-  int k = 1;
-  for (i = 1 ~ shiftNum - 1) {
-    if (array[i].isnight == 1) {
-    //把夜班班型存起來
-      remnight[k] = i; // {0, 5, 6, 7}
-      k++;
-    }
-  }
-
-  //===============================下面找出兩個班表相加
-  int sum[24] = {0};
-  int sum1[24] = {0};
-  
-//計算融合的班表有幾個 零、一、二
-  int countOne = 0, countTwo = 0, countZero = 0;
-  int bigOne = -1, bigTwo = -1, smallZero = 99;
-  int remI = 0, remJ = 0;
-  
-  for (i = 1 ~ normalN - 1) {
-    for (j = 1 ~ nightN - 1{
-      for (m = 0 ~ 23) {
-      //把任兩個班型融合起來，存在陣列 sum裡面
-        sum[m] = (shift[remnormal[i]][m] + shift[remnight[j]][m]);
-      }
-       //把要記住的數值初始化
-      countOne = 0;
-      countTwo = 0;
-      countZero = 0;
-      
-      //融合班表裡面有幾個零、一、二
-      for (m = 0 ~ 23) {
-        if (sum[m] == 1) {
-          countOne++;
-        } else if (sum[m] == 2) {
-          countTwo++;
-        } else if (sum[m] == 0) {
-          countZero++;
-        }
-      }
-//找出融合班型每個每個時段最少零的，也就是希望兩個班表能連續不間斷工作一整天
-      if (countZero < smallZero) {
-        remI = remnormal[i];
-        remJ = remnight[j];
-        smallZero = countZero;
-        bigTwo = countTwo;
-      } 
-      //如果零的個數一樣時、找二最多的
-      else if (countZero == smallZero && countTwo > bigTwo) {
-        remI = remnormal[i];
-        remJ = remnight[j];
-        bigOne = countOne;
-        bigTwo = countTwo;
-      }
-    }
-  }
-
- 
-  將remI and remJ經運算合成一個整數rem回傳，主函式再反運算得remI&remJ
-
-  return rem;//回傳值
-}
